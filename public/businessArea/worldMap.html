@@ -1,0 +1,377 @@
+﻿
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="d3.geo.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	
+    <link type="text/css" rel="stylesheet" href="style.css"/>
+    <link type="text/css" rel="stylesheet" href="colorbrewer.css"/>
+    <style type="text/css">
+
+circle {
+  fill: #dbe4f0;
+}
+
+path {
+  fill: #aaa;
+  stroke: #fff;
+}
+.background {
+  fill: none;
+  pointer-events: all;
+}
+.active {
+-moz-transition: all 0.5s ease-in;
+    -webkit-transition: all 0.5s ease-in;
+    -o-transition: all 0.5s ease-in;
+    transition: all 0.5s ease-in;
+  fill: rgb(6, 194, 186);
+}
+.active:hover{
+-moz-transition: all 0.2s ease-in;
+    -webkit-transition: all 0.2s ease-in;
+    -o-transition: all 0.5s ease-in;
+    transition: all 0.2s ease-in;
+fill:rgb(243, 221, 57)
+}
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+var width = 880,
+height = 800,
+centered;
+var margin = {
+	top : 30,
+	right : 30,
+	bottom : 30,
+	left : 40
+},
+width = 960 - margin.left - margin.right,
+height = 500 - margin.top - margin.bottom;
+
+var feature, info;
+
+var projection = d3.geo.mercator()
+	.scale(680)
+	.translate([400, 300]);
+
+var path = d3.geo.path()
+	.projection(projection);
+
+var svg = d3.select("body").append("svg").attr("width", width + margin.left + margin.right)
+	.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var bg = svg.append("rect")
+	.attr("class", "background")
+	.attr("width", width + margin.left - 20)
+	.attr("height", height + margin.top - 6).attr('stroke', 'red')
+
+	//zoom模块
+	var zoom = d3.behavior.zoom()
+	.translate(projection.translate())
+	.scale(projection.scale())
+	.scaleExtent([height, 8 * height])
+	.on("zoom", zoomed);
+
+//call.zoom加载zoom模块
+var g = svg.append("g").call(zoom).attr("width", width)
+	.attr("height", height - 140);
+
+function zoomed() {
+	projection.translate(d3.event.translate).scale(d3.event.scale);
+	g.selectAll("path").attr("d", path);
+}
+
+d3.json("world-countries.json", function (collection) {
+	feature = g.append("g")
+		.attr("id", "worldMap").selectAll("path")
+		.data(collection.features)
+		.enter().append("path")
+		.attr("d", path);
+
+	feature.append("title")
+	.text(function (d) {
+		return d.properties.name;
+	});
+});
+//总标题
+var title = svg.append("g").attr("transform", "translate(100," + -20 + ")");
+
+title.append('rect').attr('height', 20).style('stroke', 'orange').attr('width', 250).attr("x", 40).attr('height', 30)
+.attr("y", height);
+
+title.append('rect').attr('height', 20).style('stroke', 'orange').attr('width', 250).attr("x", 300).attr('height', 30)
+.attr("y", height);
+
+title.append('text').style('fill', 'orange').style('font-size', '20px')
+.attr("x", 254)
+.attr("y", height + 15)
+.attr("dy", ".35em")
+.style("text-anchor", "end").text('中遠(香港)集團有限公司').on('click', changeToWorldMap)
+
+title.append('text').style('fill', 'orange').attr("x", 524).style('font-size', '20px')
+.attr("y", height + 15)
+.attr("dy", ".35em")
+.style("text-anchor", "end").text('中遠(香港)集團有限公司').on('click', changeToChinaMap)
+
+function changeToWorldMap() {
+	g.transition()
+	.duration(750)
+	.attr("transform", "scale(1)");
+	svg.selectAll('#legend').remove();
+	svg.selectAll('#result').remove();
+	svg.selectAll('#chinaMap').remove();
+
+	projection = d3.geo.mercator()
+		.scale(680)
+		.translate([400, 300]);
+
+	path = d3.geo.path()
+		.projection(projection);
+
+	d3.json("world-countries.json", function (collection) {
+		feature = g.append("g")
+			.attr("id", "worldMap").selectAll("path")
+			.data(collection.features)
+			.enter().append("path")
+			.attr("d", path);
+
+		feature.append("title")
+		.text(function (d) {
+			return d.properties.name;
+		});
+	});
+
+}
+
+function changeToChinaMap() {
+	g.attr("transform", "scale(1)");
+	svg.selectAll('#worldMap').remove();
+
+	projection = d3.geo.azimuthal()
+		.mode('equidistant')
+		.scale(680)
+		.origin([113.03, 30.37])
+		.translate([400, 300]);
+
+	path = d3.geo.path()
+		.projection(projection);
+
+	var data = [{
+			id : 1,
+			text : '航运涂料'
+		}, {
+			id : 2,
+			text : '公路投资'
+		}, {
+			id : 3,
+			text : '船舶备件',
+			target : 'test'
+		}, {
+			id : 4,
+			text : '工业制造',
+			target : 'project'
+		}, {
+			id : 5,
+			text : 'IT咨询'
+		}, {
+			id : 6,
+			text : '船舶燃油贸易'
+		}, {
+			id : 7,
+			text : '旅游服务'
+		}, {
+			id : 8,
+			text : '物业管理'
+		}
+	]
+
+	//选择框
+	var legend = svg.append("g").attr('id', 'legend').selectAll(".legend")
+		.data(data)
+		.enter().append("g")
+		.attr("class", "legend")
+		.attr("transform", function (d, i) {
+			return "translate(0," + i * 62 + ")";
+		}).style('font-size', '26px')
+
+		legend.append('rect').style('stroke', 'orange').attr("x", width - 200).attr('width', 180).attr('height', 30)
+
+		legend.append("text").style('fill', 'black')
+		.attr("x", width - 24)
+		.attr("y", 9)
+		.attr("dy", ".55em")
+		.style("text-anchor", "end")
+		.text(function (d) {
+			return d.text;
+		}).attr('target', function (d) {
+			return d.target
+		}).attr('class', 'high');
+
+	var infoBox = svg.append("g").attr('width', 100)
+		.attr("id", "result");
+
+	info = infoBox.append("text").attr("x", width - 124)
+		.attr("y", height - 100)
+		.attr("dy", ".35em")
+		.style("text-anchor", "end")
+
+		d3.json("0.json", function (collection) {
+			feature = g.append("g")
+				.attr("id", "chinaMap").selectAll("path")
+				.data(collection.features)
+				.enter().append("path")
+				.attr("d", path);
+
+			feature.append("title")
+			.text(function (d) {
+				return d.properties.name;
+			});
+		});
+
+}
+
+//中国地图部分
+
+//点击后缩放
+function clicked(d) {
+
+	console.log(JSON.stringify(d))
+	var x,
+	y,
+	k;
+
+	if (d && centered !== d) {
+
+		var centroid = path.centroid(d);
+		x = centroid[0];
+		y = centroid[1];
+		k = 1.5;
+		centered = d;
+		console.log(x, y)
+	} else {
+		x = width / 2;
+		y = height / 2;
+		k = 1;
+		centered = null;
+	}
+
+	g.transition()
+	.duration(750)
+	.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+	.style("stroke-width", 1.5 / k + "px");
+}
+
+function transformTo(position) {
+
+	// Transition to the new transform.
+	g.transition()
+	.duration(750)
+	.attr("transform", "translate(" + position.x + "," + position.y + ")");
+}
+//transformTo({x:121,y:30})
+
+var highLighted = {
+	project : [{
+			id : 32,
+			info : '南通中远重工有限公司， 地址：江苏省海门市海门港 长春路2号'
+		}, {
+			id : 44,
+			info : '新世纪标志（深圳）有限公司， 地址：宝安区西乡黄田杨 背工业区三期恒昌荣高新科技园 十栋一、二楼'
+		}, {
+			id : 31,
+			info : '中远（江门）铝业有限公司， 地址：上海市浦东新区施新路990号'
+		}, {
+			id : 37,
+			info : '中远佐敦船舶涂料（青岛）有限公司， 地址：山东省青岛市香港中路 10号颐和国际A座2810室'
+		}, {
+			id : 81,
+			info : '合兴船务工程香港有限公司， 地址：香港兴华街西81号 '
+		}
+	],
+	test : [{
+			id : 33,
+			info : '南通中远重工 有限公司，地址：江苏省 海门市海门港长春路2号'
+		}, {
+			id : 34,
+			info : '新世纪标志（深圳） 有限公司，地址：宝安区西乡 黄田杨背工业区三期恒昌 荣高新科技园十栋一、二楼'
+		}, {
+			id : 35,
+			info : '中远（江门）铝业有限公司 ，地址：上海市浦东新区施新路990号'
+		}, {
+			id : 36,
+			info : '中远佐敦船舶涂料（青岛） 有限公司，地址：山东省青岛市 香港中路10号颐和国际A座2810室'
+		}, {
+			id : 38,
+			info : '合兴船务工程香港有限公司 ，地址：香港兴华街西81号 '
+		}
+	]
+}
+
+function highlight(target) {
+
+	g.selectAll("path")
+	.classed("active", function (d) {
+		var vs = highLighted[target];
+		var l = vs.length,
+		i = 0;
+		for (; i < l; i++) {
+			if (d.id == vs[i]['id'])
+				return d;
+		}
+	}).attr('info', function (d) {
+
+		var vs = highLighted[target];
+		var l = vs.length,
+		i = 0;
+		for (; i < l; i++) {
+			console.log(d.id, vs[i]['id'])
+			if (d.id == vs[i]['id'])
+				return vs[i]['info']
+		}
+
+	}).on('mouseover', function (d) {
+		if ($(this).attr('info')) {
+			info.text($(this).attr('info'))
+			insertLinebreaks(info)
+			clicked(d)
+		}
+
+	})
+}
+
+function insertLinebreaks(d) {
+	var words = d.text().split(' ');
+	d.text('');
+
+	for (var i = 0; i < words.length; i++) {
+		var tspan = d.append('tspan').text(words[i]);
+		if (i > 0)
+			tspan.attr('x', width - 124).attr('dy', '15');
+	}
+};
+
+function removeAll() {
+
+	g.selectAll("path")
+	.classed("");
+}
+
+$(document).delegate('.high', 'click', function () {
+	var p = $(this).attr('target');
+	removeAll();
+	highlight(p)
+})
+
+	  
+	  
+	  
+    </script>
+  </body>
+</html>
