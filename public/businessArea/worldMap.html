@@ -210,10 +210,10 @@ title.append('rect').attr('height', 20).attr('width', 250).attr("x", 300).attr('
 .attr("y", height).style("fill", "url(#blackGradient)");
 
 title.append('text').style('fill', 'white').style('font-size', '18px')
-.attr("x", 270)
+.attr("x", 200)
 .attr("y", height + 15)
 .attr("dy", ".35em")
-.style("text-anchor", "end").text('中遠(香港)集團有限公司').on('click', changeToWorldMap)
+.style("text-anchor", "end").text('中遠集團').on('click', changeToWorldMap)
 
 title.append('text').style('fill', 'white').attr("x", 524).style('font-size', '18px')
 .attr("y", height + 15)
@@ -270,30 +270,30 @@ function changeToChinaMap() {
 
 	var data = [{
 			id : 1,
-			text : '航运涂料'
+			text : '航運塗料'
 		}, {
 			id : 2,
-			text : '公路投资'
+			text : '公路投資'
 		}, {
 			id : 3,
-			text : '船舶备件',
+			text : '船舶備件',
 			target : 'test'
 		}, {
 			id : 4,
-			text : '工业制造',
+			text : '工業製造',
 			target : 'project'
 		}, {
 			id : 5,
-			text : 'IT咨询'
+			text : 'IT諮詢'
 		}, {
 			id : 6,
-			text : '船舶燃油贸易'
+			text : '船舶燃油貿易'
 		}, {
 			id : 7,
-			text : '旅游服务'
+			text : '旅遊服務'
 		}, {
 			id : 8,
-			text : '物业管理'
+			text : '物業管理'
 		}
 	]
 
@@ -309,7 +309,7 @@ function changeToChinaMap() {
 			return "translate(0," + i * 67 + ")";
 		}).style('font-size', '20px')
 
-		legend.append('rect').attr("x", width - 200).attr('width', 180).attr('height', 30).attr('opacity', 0).attr('transform', 'translate(-180,0)').transition()
+		legend.append('rect').attr("x", width - 160).attr('width', 140).attr('height', 30).attr('opacity', 0).attr('transform', 'translate(-180,0)').transition()
 			.duration(750).attr('opacity', 1).attr('transform', 'translate(0,0)').style("fill", "url(#ButtonGradient)")
 
 		legend.append("text").style('fill', 'black')
@@ -395,36 +395,36 @@ function transformTo(position) {
 var highLighted = {
 	project : [{
 			id : 32,
-			info : '南通中远重工有限公司 ------------------------ 地址：江苏省海门市海 门港长春路2号'
+			info : '南通中遠重工有限公司 ------------------------ 地址：江蘇省海門市海 門港長春路2號'
 		}, {
 			id : 44,
-			info : '新世纪标志（深圳） 有限公司 ------------------------ 地址：宝安区西乡黄田 杨背工业区三期恒昌荣高 新科技园十栋一、二楼'
+			info : '新世紀標志（深圳） 有限公司 ------------------------ 地址：寶安區西鄉黃田 楊背工業區三期恒昌榮高 新科技園十棟壹、二樓'
 		}, {
 			id : 31,
-			info : '中远（江门）铝业 有限公司 ------------------------  地址：上海市浦东新区 施新路990号'
+			info : '中遠（江門）鋁業 有限公司 ------------------------  地址：上海市浦東新區 施新路990號'
 		}, {
 			id : 37,
-			info : '中远佐敦船舶涂料 （青岛）有限公司 ------------------------ 地址：山东省青岛市 香港中路10号 颐和国际A座2810室'
+			info : '中遠佐敦船舶塗料 （青島）有限公司 ------------------------ 地址：山東省青島市 香港中路10號 頤和國際A座2810室'
 		}, {
 			id : 81,
-			info : '合兴船务工程香港 有限公司 ------------------------  地址：香港兴华街西81号 '
+			info : '合興船務工程香港 有限公司 ------------------------  地址：香港興華街西81號 '
 		}
 	],
 	test : [{
 			id : 33,
-			info : '南通中远重工有限公司 ------------------------ 地址：江苏省海门市海 门港长春路2号'
+			info : '南通中遠重工有限公司 ------------------------ 地址：江蘇省海門市海 門港長春路2號'
 		}, {
 			id : 34,
-			info : '新世纪标志（深圳） 有限公司 ------------------------ 地址：宝安区西乡黄田 杨背工业区三期恒昌荣高 新科技园十栋一、二楼'
+			info : '新世紀標志（深圳） 有限公司 ------------------------ 地址：寶安區西鄉黃田 楊背工業區三期恒昌榮高 新科技園十棟壹、二樓'
 		}, {
 			id : 35,
-			info : '中远（江门）铝业 有限公司 ------------------------  地址：上海市浦东新区 施新路990号'
+			info : '中遠（江門）鋁業 有限公司 ------------------------  地址：上海市浦東新區 施新路990號'
 		}, {
 			id : 36,
-			info : '中远佐敦船舶涂料 （青岛）有限公司 ------------------------ 地址：山东省青岛市 香港中路10号 颐和国际A座2810室'
+			info : '中遠佐敦船舶塗料 （青島）有限公司 ------------------------ 地址：山東省青島市 香港中路10號 頤和國際A座2810室'
 		}, {
 			id : 38,
-			info : '合兴船务工程香港 有限公司 ------------------------  地址：香港兴华街西81号 '
+			info : '合興船務工程香港 有限公司 ------------------------  地址：香港興華街西81號 '
 		}
 	]
 }
