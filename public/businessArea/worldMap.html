@@ -10,9 +10,10 @@
     <link type="text/css" rel="stylesheet" href="style.css"/>
     <link type="text/css" rel="stylesheet" href="colorbrewer.css"/>
     <style type="text/css">
+* {font-family: "Microsoft YaHei" ! important; } 
 
 circle {
-  fill: #EAFA2E;
+  fill: #fff;
 }
 
 path {
@@ -37,46 +38,12 @@ path {
     transition: all 0.2s ease-in;
 fill:rgb(243, 221, 57)
 }
-
-
-.form {
-  width:200px;
-  padding: 15px;
-  background: #fffaf6;
-  border-radius: 4px;
-  color: #7e7975;
-  box-shadow:0 2px 2px rgba(0,0,0,0.2),0 1px 5px rgba(0,0,0,0.2), 0 0 0 12px rgba(255,255,255,0.4); 
+#resultBox{
+fill: #A8D8DF;
+stroke: #97B6A7;
+stroke-width: 12px;
+stroke-opacity: 0.5;
 }
-
-.form h1 {
-  font-size: 15px;
-  line-height:1;
-  font-weight: bold;
-  color: #bdb5aa;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #EBE6E2;
-  text-shadow: 0 2px 0 rgba(255,255,255,0.8);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.8);
-}
-
-.form h1 .log-in,
-.form h1 .sign-up {
-  display: inline-block;
-  text-transform: uppercase;
-}
-
-.form h1 .log-in {
-  color: #6c6763;
-  padding-right: 2px;
-}
-
-.form h1 .sign-up {
-  color: #ffb347;
-  padding-left: 2px;
-}
-
-
-
     </style>
   </head>
   <body>
@@ -98,6 +65,51 @@ var svg = d3.select("body").append("svg").attr("width", width)
 	.attr("height", height)
 	.append("g")
 
+	
+		var ButtonGradient = svg.append("defs")
+	.append("linearGradient")
+	.attr("id", "ButtonGradient")
+	.attr("x1", "0%")
+	.attr("y1", "0%")
+	.attr("x2", "100%")
+	.attr("y2", "100%")
+	.attr("spreadMethod", "pad");
+
+ButtonGradient.append("stop")
+.attr("offset", "0%")
+.attr("stop-color", "#CFE7FA")
+.attr("stop-opacity", 1);
+
+ButtonGradient.append("stop")
+.attr("offset", "100%")
+.attr("stop-color", "#6393c1")
+.attr("stop-opacity", 1);
+	
+	
+			var blackGradient = svg.append("defs")
+	.append("linearGradient")
+	.attr("id", "blackGradient")
+	.attr("x1", "0%")
+	.attr("y1", "0%")
+	.attr("x2", "100%")
+	.attr("y2", "100%")
+	.attr("spreadMethod", "pad");
+
+blackGradient.append("stop")
+.attr("offset", "0%")
+.attr("stop-color", "#7d7e7d")
+.attr("stop-opacity", 1);
+
+blackGradient.append("stop")
+.attr("offset", "100%")
+.attr("stop-color", "#0e0e0e")
+.attr("stop-opacity", 1);
+	
+	
+	
+	
+	
+	
 	var gradient = svg.append("defs")
 	.append("linearGradient")
 	.attr("id", "gradient")
@@ -125,7 +137,7 @@ gradient.append("stop")
 var bg = svg.append("rect")
 	.attr("class", "background")
 	.attr("width", width)
-	.attr("height", height).attr('stroke', 'red').style("fill", "url(#gradient)");
+	.attr("height", height).attr('stroke', 'black').style("fill", "url(#gradient)");
 
 //zoom模块
 var zoom = d3.behavior.zoom()
@@ -191,22 +203,26 @@ var circleTimer = setInterval(function () {
 	//总标题
 	var title = svg.append("g").attr("transform", "translate(100," + -50 + ")");
 
-title.append('rect').attr('height', 20).style('stroke', 'orange').attr('width', 250).attr("x", 40).attr('height', 30)
-.attr("y", height);
+title.append('rect').attr('height', 20).attr('width', 250).attr("x", 40).attr('height', 30)
+.attr("y", height).style("fill", "url(#blackGradient)");
 
-title.append('rect').attr('height', 20).style('stroke', 'orange').attr('width', 250).attr("x", 300).attr('height', 30)
-.attr("y", height);
+title.append('rect').attr('height', 20).attr('width', 250).attr("x", 300).attr('height', 30)
+.attr("y", height).style("fill", "url(#blackGradient)");
 
-title.append('text').style('fill', 'orange').style('font-size', '20px')
-.attr("x", 254)
+title.append('text').style('fill', 'white').style('font-size', '18px')
+.attr("x", 270)
 .attr("y", height + 15)
 .attr("dy", ".35em")
 .style("text-anchor", "end").text('中遠(香港)集團有限公司').on('click', changeToWorldMap)
 
-title.append('text').style('fill', 'orange').attr("x", 524).style('font-size', '20px')
+title.append('text').style('fill', 'white').attr("x", 524).style('font-size', '18px')
 .attr("y", height + 15)
 .attr("dy", ".35em")
 .style("text-anchor", "end").text('中遠(香港)集團有限公司').on('click', changeToChinaMap)
+
+
+
+
 
 function changeToWorldMap() {
 	g.transition()
@@ -241,6 +257,8 @@ function changeToChinaMap() {
 	svg.selectAll('#worldMap').attr('opacity', 1).transition()
 			.duration(750).attr("transform", "scale(5)translate(-500," + -200 + ")").attr('opacity', 0).remove()
 	svg.selectAll('#points').remove();
+		svg.selectAll('#legend').remove();
+	svg.selectAll('#result').remove();
 	projection = d3.geo.azimuthal()
 		.mode('equidistant')
 		.scale(680)
@@ -281,6 +299,7 @@ function changeToChinaMap() {
 
 	
 	
+	
 	//选择框
 	var legend = svg.append("g").attr('id', 'legend').selectAll(".legend")
 		.data(data)
@@ -288,10 +307,10 @@ function changeToChinaMap() {
 		.attr("class", "legend")
 		.attr("transform", function (d, i) {
 			return "translate(0," + i * 67 + ")";
-		}).style('font-size', '26px')
+		}).style('font-size', '20px')
 
-		legend.append('rect').style('stroke', 'orange').attr("x", width - 200).attr('width', 180).attr('height', 30).attr('opacity', 0).attr('transform', 'translate(-180,0)').transition()
-			.duration(750).attr('opacity', 1).attr('transform', 'translate(0,0)')
+		legend.append('rect').attr("x", width - 200).attr('width', 180).attr('height', 30).attr('opacity', 0).attr('transform', 'translate(-180,0)').transition()
+			.duration(750).attr('opacity', 1).attr('transform', 'translate(0,0)').style("fill", "url(#ButtonGradient)")
 
 		legend.append("text").style('fill', 'black')
 		.attr("x", width - 24)
@@ -305,27 +324,7 @@ function changeToChinaMap() {
 		}).attr('class', 'high').attr('opacity', 0).attr('transform', 'translate(-180,0)').transition()
 			.duration(750).attr('opacity', 1).attr('transform', 'translate(0,0)')
 
-			
-			var infoBox = svg.append("foreignObject")
-    .attr("width", 180)
-    .attr("height", 200).attr('transform','translate('+(width-400)+',300)').attr("id", "result")
-  .append("xhtml:body")
-    .style("font", "14px 'Helvetica Neue'")
-    .html('<form class="form"><h1><span class="log-in">Log in</span> or <span class="sign-up">sign up</span></h1><p id="res"></p></form>');
-
-
-			
-			/*
-			
-	var infoBox = svg.append("g").attr('width', 100)
-		.attr("id", "result");
-
-	info = infoBox.append("text").attr("x", width - 124)
-		.attr("y", height - 100)
-		.attr("dy", ".35em")
-		.style("text-anchor", "end")*/
-
-		d3.json("0.json", function (collection) {
+					d3.json("0.json", function (collection) {
 			feature = g.append("g")
 				.attr("id", "chinaMap").selectAll("path")
 				.data(collection.features)
@@ -338,6 +337,27 @@ function changeToChinaMap() {
 				return d.properties.name;
 			});
 		});
+			
+			
+	var infoBox = svg.append("g").attr('width', 100)
+		.attr("id", "result");
+		
+		
+
+
+		
+infoBox.append('rect').attr('id','resultBox').attr('width',160).attr('height',200).attr('x',width - 404).attr('y',height-290).attr('opacity', 0).attr('transform', 'translate(-180,0)').transition()
+			.duration(750).attr('opacity', 1).attr('transform', 'translate(0,0)')
+
+infoBox.append('rect').attr('id','resultBox').attr('width',160).attr('height',30).attr('x',width - 404).attr('y',height-330).attr('opacity', 0).attr('transform', 'translate(-180,0)').transition()
+			.duration(750).attr('opacity', 1).attr('transform', 'translate(0,0)')			
+			
+	info = infoBox.append("text").attr("x", width - 394)
+		.attr("y", height-250)
+		.attr("dy", ".35em")
+	titleBox = infoBox.append("text").attr("x", width - 350)
+		.attr("y", height-315)
+		.attr("dy", ".35em")
 
 }
 
@@ -351,20 +371,11 @@ function clicked(d) {
 	y,
 	k;
 
-	if (d && centered !== d) {
-
 		var centroid = path.centroid(d);
 		x = centroid[0];
 		y = centroid[1];
 		k = 1.5;
 		centered = d;
-		console.log(x, y)
-	} else {
-		x = width / 2;
-		y = height / 2;
-		k = 1;
-		centered = null;
-	}
 
 	g.transition()
 	.duration(750)
@@ -384,41 +395,41 @@ function transformTo(position) {
 var highLighted = {
 	project : [{
 			id : 32,
-			info : '南通中远重工有限公司， 地址：江苏省海门市海门港 长春路2号'
+			info : '南通中远重工有限公司 ------------------------ 地址：江苏省海门市海 门港长春路2号'
 		}, {
 			id : 44,
-			info : '新世纪标志（深圳）有限公司， 地址：宝安区西乡黄田杨 背工业区三期恒昌荣高新科技园 十栋一、二楼'
+			info : '新世纪标志（深圳） 有限公司 ------------------------ 地址：宝安区西乡黄田 杨背工业区三期恒昌荣高 新科技园十栋一、二楼'
 		}, {
 			id : 31,
-			info : '中远（江门）铝业有限公司， 地址：上海市浦东新区施新路990号'
+			info : '中远（江门）铝业 有限公司 ------------------------  地址：上海市浦东新区 施新路990号'
 		}, {
 			id : 37,
-			info : '中远佐敦船舶涂料（青岛）有限公司， 地址：山东省青岛市香港中路 10号颐和国际A座2810室'
+			info : '中远佐敦船舶涂料 （青岛）有限公司 ------------------------ 地址：山东省青岛市 香港中路10号 颐和国际A座2810室'
 		}, {
 			id : 81,
-			info : '合兴船务工程香港有限公司， 地址：香港兴华街西81号 '
+			info : '合兴船务工程香港 有限公司 ------------------------  地址：香港兴华街西81号 '
 		}
 	],
 	test : [{
 			id : 33,
-			info : '南通中远重工 有限公司，地址：江苏省 海门市海门港长春路2号'
+			info : '南通中远重工有限公司 ------------------------ 地址：江苏省海门市海 门港长春路2号'
 		}, {
 			id : 34,
-			info : '新世纪标志（深圳） 有限公司，地址：宝安区西乡 黄田杨背工业区三期恒昌 荣高新科技园十栋一、二楼'
+			info : '新世纪标志（深圳） 有限公司 ------------------------ 地址：宝安区西乡黄田 杨背工业区三期恒昌荣高 新科技园十栋一、二楼'
 		}, {
 			id : 35,
-			info : '中远（江门）铝业有限公司 ，地址：上海市浦东新区施新路990号'
+			info : '中远（江门）铝业 有限公司 ------------------------  地址：上海市浦东新区 施新路990号'
 		}, {
 			id : 36,
-			info : '中远佐敦船舶涂料（青岛） 有限公司，地址：山东省青岛市 香港中路10号颐和国际A座2810室'
+			info : '中远佐敦船舶涂料 （青岛）有限公司 ------------------------ 地址：山东省青岛市 香港中路10号 颐和国际A座2810室'
 		}, {
 			id : 38,
-			info : '合兴船务工程香港有限公司 ，地址：香港兴华街西81号 '
+			info : '合兴船务工程香港 有限公司 ------------------------  地址：香港兴华街西81号 '
 		}
 	]
 }
 
-function highlight(target) {
+function highlight(target,text) {
 
 	g.selectAll("path")
 	.classed("active", function (d) {
@@ -442,8 +453,9 @@ function highlight(target) {
 
 	}).on('mouseover', function (d) {
 		if ($(this).attr('info')) {
-			$('#res').html($(this).attr('info'))
-			//insertLinebreaks(info)
+			info.text($(this).attr('info'))
+			titleBox.text(text)
+			insertLinebreaks(info)
 			clicked(d)
 		}
 
@@ -457,7 +469,7 @@ function insertLinebreaks(d) {
 	for (var i = 0; i < words.length; i++) {
 		var tspan = d.append('tspan').text(words[i]);
 		if (i > 0)
-			tspan.attr('x', width - 124).attr('dy', '15');
+			tspan.attr('x', width - 394).attr('dy', '15');
 	}
 };
 
@@ -470,7 +482,8 @@ function removeAll() {
 $(document).delegate('.high', 'click', function () {
 	var p = $(this).attr('target');
 	removeAll();
-	highlight(p)
+	highlight(p,$(this).text())
+	g.transition().duration(400).attr("transform", "scale(1)");
 })
 
 	  
