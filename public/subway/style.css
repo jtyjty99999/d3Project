@@ -1,0 +1,125 @@
+/*给线路增加颜色*/
+  .l_123, .l_1, .l_2, .l_3         { background-color: #FF3535; stroke: #FF3535;}
+  .l_456, .l_4, .l_5, .l_6         { background-color: #019733; stroke: #019733;}
+  .l_7                             { background-color: #CC02C8; stroke: #CC02C8;}
+  .l_ace, .l_A, .l_C, .l_E         { background-color: #0F6797; stroke: #0F6797;}
+  .l_bdfm, .l_B, .l_D, .l_F, .l_M  { background-color: #FF9800; stroke: #FF9800;}
+  .l_nqr, .l_N, .l_Q, .l_R         { background-color: #ffe400; stroke: #ffe400;}
+  .l_SIR                           { background-color: #164480; stroke: #164480;}
+  .l_jz, .l_J, .l_Z                { background-color: #986701; stroke: #986701;}
+  .l_L, .l_l                       { background-color: #999999; stroke: #999999;}
+  .l_G, .l_g                       { background-color: #9BCF00; stroke: #9BCF00;}
+/*选择按钮*/
+  .line
+  {
+    width: 30px;
+    height:30px;
+    border-radius:75px;
+    font-size:18px;
+    color:white;
+    line-height:30px;
+    text-align:center;
+    font-family: "neutra-2-display-1", sans-serif;
+    font-weight: 800;
+    float:left;
+    margin-right: 3px;
+    margin-left: auto;
+    margin-bottom:10px;
+    border: none;
+    padding:0px;
+    opacity: .35;
+
+       -moz-transition: all 0.15s;
+         -o-transition: all 0.15s;
+    -webkit-transition: all 0.15s;
+            transition: all 0.15s;
+  }
+
+  .line:hover { opacity: 1; cursor: pointer; }
+
+  .selected { opacity: 1; }
+
+  
+  .axis path { stroke-width: 1; }
+
+  .graph_line { stroke-width: 4; fill: none; -moz-transition: all 0.15s; -o-transition: all 0.15s; -webkit-transition: all 0.15s; transition: all 0.15s; }
+
+  circle { stroke: white; stroke-width: 2; }
+  circle:hover { cursor: pointer; }
+
+  #tooltip
+  {
+    position: absolute;
+    width: 200px;
+    height: auto;
+    padding: 10px;
+    background-color: white;
+    -webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  #tooltip.hidden
+  {
+    display: none;
+    -moz-transition: all 0.15s;
+    -o-transition: all 0.15s;
+    -webkit-transition: all 0.15s;
+    transition: all 0.15s;
+  }
+
+  #tooltip .line { margin-right: 10px; margin-bottom: 35px; opacity: 1; }
+  #name { font-family: "neutra-2-text-1"; font-weight: bold; font-size: 18px; }
+  #stop-name { padding-bottom: 5px; margin-bottom: 5px; margin-top: 6px; margin-left: }
+  .label-wrap { margin-left: 40px; }
+
+  .label
+  {
+    font-family: "neutra-2-display-1";
+    font-weight: 800;
+    color: gray;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding-top: 3px;
+    padding-bottom: 5px;
+  }
+
+  #census
+  {
+    color: black;
+  }
+
+  .label-number { font-family: "neutra-2-display-1"; font-size: 14px; font-weight: 800; letter-spacing: 1px; padding-bottom: 5px; }
+
+  .axis path { fill: none; }
+  .axis text { font-family: "neutra-2-display-1"; text-transform: uppercase; font-weight: 800; font-size: 11px; fill: #888; letter-spacing: 2px; }
+
+  .borough rect { opacity: .2; fill: #ccc; }
+
+  .borough text {
+    font-family: "neutra-2-text-1";
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 11px;
+    fill: #888;
+    letter-spacing: 2px;
+  }
+
+  .lines p {
+    font-family: "neutra-2-display-1";
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 13px;
+    color: #444;
+    letter-spacing: 2px;
+  }
+
+  .tick line { stroke: white; stroke-width: 2; }
+  #line_path_2000 path { opacity: .4; }
+  #map { left: 606px; margin-top: -53px; position: absolute; z-index: -10; }
+  .instructions { width: 865px; padding-top: 7px; margin-bottom: 10px; }
+  .credit { font-size: 12px; }
+  .borough_map { fill: #ccc; opacity: .4; stroke: white; stroke-width: 2; }
