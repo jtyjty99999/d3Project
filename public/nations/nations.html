@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<style type="text/css">
+    body{
+        height: 100%;
+        
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+</style>
+<script src="./d3.v3.min.js"></script>
+<body>
+
+
+</body>
+<script type="text/javascript">
+
+    //Width and height
+    var w = 600;
+    var h = 400;
+    var padding = 40;
+	var i=1800;
+	
+
+
+	// Load the data.
+d3.json("nations.json", function(nations) {
+
+var dataset = nations ;
+
+
+    //Create scale functions
+	
+	
+    var xScale = d3.scale.log()
+            .domain([300, 1e5])
+            .range([padding, w - padding * 2]);
+
+    var yScale = d3.scale.linear()
+            .domain([10, 85])
+            .range([h - padding, padding]);
+
+    var rScale = d3.scale.sqrt()
+            .domain([0, 5e8])
+            .range([3, 30]);
+			
+		var colorScale = d3.scale.category10();
+
+    //Create SVG element
+    var chart = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+			
+			
+    chart.selectAll("circle")
+            .data(dataset)
+            .enter()
+            .append('circle')
+            .attr("cx", function(d) {
+                return xScale(d['income'][0][1]);
+            })
+            .attr("cy", function(d) {
+                return yScale(d['lifeExpectancy'][0][1]);
+            })
+            .attr("r", function(d) {
+                return rScale(d['population'][0][1]);
+            }).style('fill',function(d) {
+                return colorScale(d['region']);
+            }).append("title")
+      .text(function(d) { return d['name']; });
+    //Define x axis
+    var xAxis = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom").ticks(5)
+
+    //Create x axis
+    chart.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + (h - padding) + ")")
+            .call(xAxis);
+    //Define Y axis
+    var yAxis = d3.svg.axis()
+            .scale(yScale)
+            .orient("left").ticks(5)
+
+//Create Y axis
+    chart.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", "translate(30,0)")
+                    .call(yAxis);
+					
+					    function redraw() {
+						
+        chart.selectAll("circle")
+                .data(getData(i))
+                .transition()
+                .duration(20)
+                .attr("cx", function(d) {
+				
+				//console.log(d['income'])
+				
+                return xScale(d['income']);
+            })
+            .attr("cy", function(d) {
+                return yScale(d['lifeExpectancy']);
+            })
+            .attr("r", function(d) {
+                return rScale(d['population']);
+            })
+    }
+    setInterval(function(){
+       i+=1;
+        i<2009&&redraw();
+    },50)
+					
+					
+					
+	function getData(year) {
+	
+    return dataset.map(function(d) {
+      return {
+        name: d.name,
+        region: d.region,
+        income: getValue(d.income, year),
+        population: getValue(d.population, year),
+        lifeExpectancy: getValue(d.lifeExpectancy, year)
+      };
+    });
+  }
+  var bisect = d3.bisector(function(d) { return d[0]; });
+  
+	function getValue(values, year) {
+    var i = bisect.left(values, year, 0, values.length - 1),
+        a = values[i];
+    if (i > 0) {
+      var b = values[i - 1],
+          t = (year - a[0]) / (b[0] - a[0]);//线性插值法
+      return a[1] * (1 - t) + b[1] * t;
+    }
+    return a[1];
+  }
+					
+					
+});
+
+
+</script>
+</html>
