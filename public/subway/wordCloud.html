@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://weiboreach.com:80/js/cloud.js"></script>
+
+<meta charset=utf-8 />
+<title>JS Bin</title>
+</head>
+<body>
+  <script>
+        var w = 600;
+    var h = 400;
+    
+        var chart = d3.select("body")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+    
+   var data = ["前端","路途","大漠","指路明灯","途上","拜托","托了","一片","宇宙","代码","芋头","诗人","千万别","右边","饭吃","没饭"]
+    
+   	function keyword(data){
+			var fill = d3.scale.category20();
+			 var keywords = data;
+			 var sizes = [50,45,44,43,34,33,32,29,24,23,22,21,20];
+			  d3.layout.cloud().size([456, 330])
+			      .words(keywords.map(function(d,i) {
+			    	  var fsize = sizes[i];
+			    	  if(fsize == null){
+			    		  fsize = 10 + Math.random() * 20
+			    	  }
+			    	  
+			    	  
+			        return {text: d, size: fsize};
+			      }))
+			      .rotate(function() { return ~~(Math.random() * 2) *90;; })
+			      .font("Impact")
+			      .fontSize(function(d) { return d.size; })
+			      .on("end", draw)
+			      .start();
+
+			  function draw(words) {
+			    chart.attr("width", 456)
+			        .attr("height", 334)
+			      .append("g")
+			        .attr("transform", "translate(220,170)")
+			      .selectAll("text")
+			        .data(words)
+			      .enter().append("text")
+			        .style("font-size", function(d) { return d.size + "px"; })
+			        .style("font-family", "微软雅黑")
+			        .style("margin","30px")
+			        .style("padding","30px")
+			        .style("fill", function(d, i) { return fill(i); })
+			        .attr("text-anchor", "middle")
+			        .attr("transform", function(d) {
+			          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+			        })
+			        .text(function(d) { return d.text; });
+			  } 
+	}
+
+   keyword(data)
+  </script>
+</body>
+</html>

@@ -810,7 +810,7 @@
         d3.selectAll("circle")
           .transition()
           .duration(500)
-          .attr("r", 0);//把所有的小圈最小化
+          .attr("r", 0);//minimize all circle
 
        d3.select("#line_path_2011 path")
          .attr("class", "graph_line l_" + id)//配上颜色,去掉填充.只保留线,参考css
@@ -1032,6 +1032,7 @@ window.onload = function() { init() };
       }
 
       function show(data) {
+		console.log(data)
         sourceData = data;
 		drawChart();
       }
