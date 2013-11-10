@@ -898,57 +898,54 @@
 	  
 	  //按照区域绘制饼图的分块
 	  
-	        function getBoroughs(filteredData){
-        boroughs = filteredData.reduce(
-          function(memo, stop, i) {
-            var len = memo.length;
-            if(len == 0 || (memo[len - 1].county != stop.county)) {
-              memo.push({
-                county: stop.county,
-                start: i+1,
-                span: 1
-                // countyName: stop.countyname
-              });
-            }
-            else {
-              memo[len - 1].span++;
-            }
-            return memo;
-          },
-          []
-        )
-		console.log(boroughs)
+	        function getBoroughs(filteredData) {
+boroughs = filteredData.reduce(
+		function (memo, stop, i) {
+		var len = memo.length;
+		if (len == 0 || (memo[len - 1].county != stop.county)) {
+			memo.push({
+				county : stop.county,
+				start : i + 1,
+				span : 1
+				// countyName: stop.countyname
+			});
+		} else {
+			memo[len - 1].span++;
+		}
+		return memo;
+	},
+		[])
+	        		console.log(JSON.stringify(boroughs))
 
-        var gCounties = d3.select("#areaBox").selectAll('g.borough')
-          .data(boroughs);
-		  
-		  
-           gCounties.enter()
-            .append('g')// 根据每个区域，建立容器
-            .attr('class', 'borough')//区域样式
-            .attr('transform', function(d) {// 然后把区域挪到正确的位置上
-              return 'translate(' + stop_scale(d.start) + ')';
-            })
-            .each(function(d, i) {// inside each group:
-              // append a rect (this is just an example)
-              d3.select(this)
-                .append('rect')
-                .attr('x', -5)
-                .attr('width', stop_scale(d.span+.8))
-                .attr('height', chartSize.height);
+	        		var gCounties = d3.select("#areaBox").selectAll('g.borough')
+	        			.data(boroughs).enter()
+	        			.append('g') // 根据每个区域，建立容器
+	        			.attr('class', 'borough') //区域样式
+	        			.attr('transform', function (d) { // 然后把区域挪到正确的位置上
+	        				return 'translate(' + stop_scale(d.start) + ')';
+	        			});
 
-              //给容器添加文字
-              d3.select(this)
-                .append('text')
-                .attr("y", 15)
-                .text(function(d){
-                  if (d.county == "5") { return "BRX" }
-                  else if (d.county == "61") { return "MAN" }
-                  else if (d.county == "81") { return "QNS" }
-                  else if (d.county == "47") { return "BRK" };
-                });
-            });
-        }
+	        			gCounties.append('rect')
+	        			.attr('x', -5)
+	        			.attr('width', function (d) {
+	        				return stop_scale(d.span + .8)
+	        			})
+	        			.attr('height', chartSize.height);
+
+	        		gCounties.append('text')
+	        		.attr("y", 15)
+	        		.text(function (d) {
+	        			if (d.county == "5") {
+	        				return "BRX"
+	        			} else if (d.county == "61") {
+	        				return "MAN"
+	        			} else if (d.county == "81") {
+	        				return "QNS"
+	        			} else if (d.county == "47") {
+	        				return "BRK"
+	        			};
+	        		});
+	        }
  
  
  
@@ -964,7 +961,7 @@
                   .attr("height", h);
 
       var projection = d3.geo.mercator()
-                             .center([-73.95, 40.678659]) //纽约坐标
+                             .center([-73.955, 40.678]) //纽约坐标
                              .translate([w/2, h/2])
                              // // to shrink/grow the map, 1000 = 100%
                              .scale([34000]);

@@ -1,0 +1,738 @@
+Hi everyone,it is my honor to be here.
+
+Today, we are going to Create visualization of the income level along New York subway using d3js
+
+now, we will walk through a visualization work. We will learn and discuss how to create a work to demonstrate the income level along New York subway, include the need for d3 API, ideas and organization our code.
+
+slide1:
+这个可视化作品主要由以下几个部分组成
+数据部分，包含地图与收入数据
+图表部分，包含axis，background,label path 以及每个站点对应的数据，通过d3的api scale axis及line我们可以完成这些
+
+
+
+The visualization is mainly composed of the following several sections
+Data section, including maps and income data
+Chart section, including the axis, background, label，path as well as the corresponding data, we can do it through d3 API's like scale axis and line 
+
+
+地图部分，包含纽约地图，地铁线路地图，以及每个站点的位置。
+我们可以使用d3的api  projection，data来完成
+
+我们的效果中，图表与地图的显示是联动的，因此我们还需要靠一些属性，如id class来联动两个部分，同时为了方便用css美化图表我们需要使用class
+
+
+Map section, contains the map of New York, the subway map, as well as the position of each station.
+We can use d3 API, projection and data to accomplish.
+In our work, chart and map display is linkage, so we still need to rely on some of the properties, such as id class to link the two sections, 
+at the same time in order to facilitate with CSS to beautify the chart we need to use the class attribute
+
+slide2
+首先我们来准备所需要的数据。地图数据包含地铁及纽约地图，要注意，我们的地图数据是topojson，这种数据格式是d3的作者所应用的，需要一个topojson工具库来解析。
+
+而收入数据则来源于google doc，我们需要用第三方的js库 tabletop来解析这些数据。接下来的幻灯片会演示如何使用这个库解析数据。
+当数据准备完毕后，就可以绘制图表了。
+
+
+First of all we need to prepare the data. 
+Data contains the subway map and map of New York, 
+also note our map data is topojson formatted, this data format is created by the （奥）author of d3, we need to parse（怕死） the  data with a topojson tool library.
+And income data is from the Google doc, 
+we need to use third-party tabletop js library to parse the data. 
+The following slides will demonstrate how to use the library for data parsing.
+When data is ready, we can draw diagrams.
+
+
+slide3  
+现在我们来解析googledoc上的收入数据。
+我们首先引入一个script标签来加载tabletop。
+之后我们再引入一个标签来加载topojson的解析库
+
+Now let's parse  the income data from google doc.
+first we import a script tag to load the tabletop.
+then import another script tag to load topojson parsing library
+
+
+
+之后我们定义一个全局变量sourceData，定义这个变量为全局的原因是我们的这个作品很多部分都需要操作这个变量，定义到全局方便我们引用。
+
+之后我们定义数据来源，用url来表示。这个变量用在tabletop里。
+
+then We define a global variable(重音在前) sourceData, the reason we define this variable is many section of this work we should need to manipulate（么） the variable, it is convenient for us to reference.
+
+next we define the data source, we use a variable url. The variable will be used in tabletop.
+
+之后我们定义一个init函数，这个函数被包裹在window。onload里，这样可以在文档加载完毕后执行。
+
+在init函数中，我们初始化tabletop来读取数据。tabletop的init方法接收三个参数，第一个参数也就是我们之前定义的数据源。
+第二个参数为回调函数，会在数据读取完毕后调用，且数据会作为参数传入。因此我们可以把绘图的函数放到这里，这样当数据解析完毕，就可以开始绘制图表了。
+
+next we define a function called init, the function is wrapped in the window. Onload , so it can be executed(重音在前) after the document loaded .
+In the init function, we initialize the tabletop to read the data. Tabletop init method takes three parameters,  the first parameter is the data source we defined before.
+The second parameter is callback function, 
+the callback function will be executed after the data parsing, and data will be passed as a parameter. 
+So we can put the drawing function here, when data ready, we begin to draw diagrams.
+
+
+在这里我们定义show为绘图函数，这个函数首先把获取到的数据赋值给全局变量soureceDAta，这样我们之后就可以通过sourcedata来读取。 然后drawchart则是绘制的主入口。
+
+通过tabletop解析过的数据如图所示，也是json数据.
+
+
+Here we define the show as drawing function, first it will assign the passed data to global variable soureceDAta, then we can get through the sourcedata. drawchart is the main entrance of drawing.
+the data tabletop parsed as shown in the figure is the json data.
+
+
+slide4
+当准备好数据后，我们开始绘制地图部分，这里我们将会使用城市地图数据及地铁数据，通过d3geo mercator跟d3 geo path两个api来绘制地图，绘制的时候可以使用data api来加载数据，并把数据作为svg的path就可以显示地图了。
+
+When data is ready, we turn to map section, 
+here we will use the city and subway map data, through d3geo Mercator and d3 geo path these two apis to create map, then data API can be used to load the mapdata, and use as a SVG path to display maps.
+
+
+slide5
+现在我们开始详细的讲解地图绘制。
+绘制的时候我们先要使用projection api来定义地图的projection，包括设置地图的中心，偏移及缩放级别。之后用path命令，根据projection生成path，这样我们才可以把path加载到页面上。
+
+Now we begin to explain map drawing in detail. 
+first  we use the projection API to define the projection of the map, including set up center of the map, skewing and zoom level. then using the path api, the path was generated according to the projection, so we can put the path into the page.
+
+
+地图的缩放我们取34000， 这个缩放比例很适合我们的地图容器
+那么注意地图绘制的时候，如果不指定center跟translate，地图会默认以 经度0 纬度0作为地图中心。而且地图中心在左上角。
+因此我们要把地图偏移半个容器的宽高，并指定中心，才能让地图完全显示，这里我们使用translate来进行偏移操作。
+
+为了让纽约显示完全，我们需要打开谷歌地图，寻找一个相对于纽约区域内的中点。找到这个合适的点就可以让我们的地图完全显示
+
+之后我们利用append创建一个容器，并给这个容器添加一个class属性 borough_line 这个属性是为了方便我们应用css样式的
+
+
+pay attention , if we don't specify the center and translate, the current center which defaults to latitude 0 degree , longitude 0 degree.
+If translate is not specified, returns the current translation offset which defaults to [480, 250],why this number?because in d3api the default container width is 960,height is 500.map center is on the up left corner of the map.so this default translation is half a container 's width and height, then the map center will translated from up left corner to center ,so we can get the map display completely
+
+In order to show New York map fully, we need to open the Google maps, find a point relative to the midpoint of the New York area. Find the suitable point can make our map display completely
+
+then we use append to create a box,and add the box a class attribute  borough_line. this attribute is easy for us to use css.
+
+
+
+
+
+
+
+
+
+slide6 
+
+ok，地图的path跟projection都准备好了，我们开始建立地图的容器。我们定义好宽高，在id为map的容器里添加一个svg标签，之后设置这个容器的宽高
+
+
+Ok, path of the map with the projection are ready, we started to build the map container. We define width(with) and height, add  an SVG tag in the container which id is map, then setting the container width and height
+
+slide7
+设置好之后我们就可以把地图数据加载进去了。
+这时候我们需要一个经典组合  selectall，data，enter组合。这个组合可以给容器绑定上数据，并根据数据来切分容器。
+
+还有，之前提到我们需要用topojson.object方法来解析json数据。这个方法接收两个参数
+第一个参数传入的是数据的根节点。第二个参数传入的是topojson数据的object属性的值
+之后我们就可以得到解析后的地图数据，这个数据。geometries表示地理信息部分，那么我们的经典组合使用这个数据来切分，就可以把容器按照地区borough切分了。
+
+
+after set up we can load data into the map.
+This time we need a classic combination selectall, data, enter these 3 api. This combination can give container data binding, and divide the container according to the data.
+
+mentioned before. We need to use topojson object method to parse the json data. 
+This method takes two parameters
+The first parameter is the incoming data of the root node. The second parameter is the incoming data's  "object" porperty's value
+Then we can get the map data.In the data. Geometries(找么吹) attribute is the part of geographic information, 
+then we use the classic combination to cut by this data, you can divide the container into several borough(波肉)
+
+
+
+
+之后我们就可以把切分好的容器，每个容器放入一个path标签，然后加载我们上一张幻灯片中生成的path。
+加载的方式是给path标签的d属性赋值即可
+
+这里我们仍然要添加一个class  borough_map来方便应用样式。 地图绘制好后如图所示。
+
+Then each divided container we can put in a path tag, , and then load our path generated in the previous slide
+Here we still need to add a class borough_map . it is convenient to apply the style
+
+slide8
+制作好底图后，我们如法炮制，制作地铁线路图。
+首先我们创建一个容器，并设置容器的class为map——lines
+
+像之前制作地图一样，我们仍然使用经典的组合  selectall  data  enter组合，然后用topojson。object来解析，不过这次解析的是地铁线路数据。
+跟之前一样，切分好后放入path标签，设置path属性，就ok了。
+这里有一点不同的是，这里的class我们设置了两个  map_line 这个是用来帮我们批量操作地铁，比如给所有地铁应用样式，隐藏显示所有地铁线路等。
+
+而  l_  加数据.properties.routeid 是为了帮我们定位到具体哪条线路，之后我们就可以通过 l_id的形式找到这条线路，可以对特定的线路应用样式，做一些操作等。
+之后我们对地铁应用一些样式， （讲解 那几个样式都干嘛）
+
+
+After make new york map, we do the same thing, add the subway line map.
+
+First we create a container, and set the container class  map underline lines
+
+Like the map made before, we still use the combination of classical selectall data enter combination, and then use topojson. Object to parse the subway line data
+
+Just like before, divide the container and put into the path tag, set the path 's  d attribute we will make it .
+
+Here is a little different is that here we set up two class. map_line is used to help us operate  all subway lines, such as apply style to all lines, hide all subway lines, etc.(艾特赛特若)
+And l underline  plus data.properties.routeid is to help us locate a specific line, then we can find this line through l_id, then apply styles to specific line, do some operation, etc.
+then we add some style for the subway lines,like the fill,stroke.
+
+
+
+
+slide9
+
+制作好地铁数据跟地图数据，我们开始添加所有的站点。
+这时候就需要使用之前用tabletop解析好的数据了，这个数据存在全局变量sourceData中。
+我们还是使用经典组合 把容器拆分后添加circle标签，这样有多少个站点就有多少个circle标签。
+
+但是要注意，点的位置是以坐标来表示的，如何转换为屏幕上的实际位置呢，我们就需要刚刚定义的projection了。
+通过projection来把坐标转换为像素坐标，就可以通过cx，cy来设置点的位置。
+之后我们设置点的初始大小为4像素。
+
+
+为了定位某一个点，我们给每个点都用一个id来标记，这个id为t_地区_tract,这样我们就可以控制某个特定点了。
+然后我们设置opacity属性来隐藏。(fill opactiy)
+这样地图部分我们就大功告成了
+
+
+after make the map, we began to add all of the station on map.
+
+Before this time will need to use the tabletop parsed data, the data is stored in the global variable sourceData.
+After we divide the container using a combination of classic method, we should add circle tags in it, so how many stations are how many circle label.
+Note, however, the position of the point is coordinates on map, how to convert the actual location on the screen, we need the projection we just defined.
+
+Through the projection we translate coordinate into pixel coordinates,then we can use  cx, cy to set the point location.
+
+then we set the initial size 4 pixels.
+
+To locate a certain point, we give every point a marker with an id, this id is t  underline county underline tract, so that we can control a particular point by this id.
+
+last we set opacity properties to hide the point, This map part we have done
+
+
+slide10
+
+接下来来制作图表部分。
+图表通过data来渲染，包括图表的line，axis，label及图标的容器。
+line我们可以用d3.svg,line x,y 这样的api很方便就可以绘制出来 (讲解interpolate)
+label我们需要格式化数据，之后用tick来定义数据显示的区间。
+axis可以用scale相关的api定义数据的类型及区间，之后创建一个axis对象，用axis的scale匹配数据，使用call命令放到容器即可
+这也是一个很公式化的做法了。
+
+
+The following section is to make a chart.
+The chart is rendered by data , including the line, the axis, the label and the container.
+to draw Line we can use the d3. SVG.line x, y this API .it is very convenient to draw a line.
+about label we need to format data, then use tick api to define the data range.
+Axis can use  the related scale API defines the data type and interval, then create an axis object,  match the scale, using the call method into the container
+This is also a very formulaic approach.
+
+
+
+slide11  
+首先我们定义数据的scale，scale的作用主要是定义一个数据，传入数据可以返回屏幕的像素长度。
+
+scale的linear api表示数据是线性的，range的作用是把数据匹配到实际的像素中，domain则是规定数据的范围，
+这三个配合用，我们可以得知某个数据具体在图表的什么位置，比如 range  0-100px
+domain  0-10  那么当数据为5时可以得到50px
+
+这里stopScale这个scale单纯表示 某条线路中站点的个数。点的个数最大值为49，那么宽度不会超过容器的宽度
+而incomeScale表示某条线路的收入。最大值我们设置为230000，高度则不会超过容器的高度
+
+
+First, we define the data scale, 
+scale is mainly to define a data, data translate into scale returns the length of the screen pixel.
+
+Scale linear API described the data is linear, the function of range is match to the actual pixel, the domain function is to stipulate the scope of the data,
+
+Cooperate with the three, we can learn that what is the position of a specific data in the chart, 
+
+for example,if we define the range 0 to 100 px
+
+Domain 0 to 10
+
+ when the data is 5 we can get 50px
+ 
+Here stopScale said the number of stations in a line. A maximum number is 49 points, then the width is less than the width of the container
+
+And incomeScale has said that a certain line's income. We set to 230000, maximum height can't  be more than the height of the container
+
+
+
+slide12
+
+之后我们定义axis。大家注意，这里数据被格式化为每三位按照逗号分割的格式，我们可以使用正则表达式来完成这项工作。
+
+x轴我们用stop_axis表示，使用d3.svg.axisapi创建一个aixs，之后直接用scale加载之前定义的stop_scale即可
+
+y轴我们用incomeAxis表示  注意axis默认是摆放在图表下侧的，我们用orient改变摆放的方向为左侧。
+
+tickformat可以格式化数据的显示，我们应用formatNum这个函数来解决
+
+这个函数可以把数据用正则表达式替换为逗号分组的形式。
+
+tickVAlue可以人为规定图表label的值
+
+ticksize（）
+tivepadding（讲解一下）
+
+经过这样的几个api的操作，我们就可以设置好纵轴的axis
+
+
+Then we define the axis. Attention, this data is formatted to be separated by comma for each three number, we can use regular expressions to finish the work.
+
+The x axis, we use stop_axis, use d3. SVG.aixs  to create an axis, then use scale method to load stop_scale we defined before.
+
+Y axis we use incomeAxis
+pay attention to axis position default is under the chart, we use orient to change the direction to left.
+Tickformat can format data display, we applied formatNum function to solve
+
+This function use regular expressions to replace the data to separated by comma.
+
+note here I use TickVAlue .even though tick api can generate tick automaticlly ,It is hard to control. so we use tick value to artificially stipulate the diagram label value 
+
+Ticksize can sets the inner and outer tick sizes to the specified value.
+
+Tivepadding is to define the padding between tick and axis.
+
+after Several API operations in this way, we can set up the vertical axis
+
+
+
+
+
+slide13
+
+制作好axis与scale，我们开始绘制图表。
+由于图表与容器之前是有边距的
+
+我们需要设置容器的尺寸，在设置边距的尺寸。之后一减就可以了
+
+用一个对象来存储，这样方便修改
+
+容器尺寸用containersize来设置，容器的边距用margins来设置。
+
+我们选择id为graphic的盒子，放入一个svg标签作为容器，设置宽高。
+之后我们在这个容器内放入图表，因为svg是没有边距这个概念的，我们需要用translate来进行偏移。
+
+然后我们用一个变量chart来存储这个建立好的容器，设置这个容器的id属性为chart
+
+finish made the axis and scale, we began to draw diagrams.
+
+Because the chart has margin with container 
+We need to set the size of the container, the set the size of the margin. then after a subtraction we can get the diagrams size
+we use an object to store, it's easy to modify
+
+Container size set with containersize object, margin of container set with margins object.
+
+We select the box witch id is graphic, put an SVG tag as a container, then set width and height.
+
+then we put the chart into container, because SVG is no margin concept, we need to use translate for migration(买贵深).
+
+Then we use a variable chart to store this container, set the container id attribute to chart
+
+
+
+slide14
+建立好容器，我们开始绘制曲线及曲线上的点。由于曲线上的点就是站点，所以我们可以首先建立一个容器放点，之后直接使用souceData，利用刚才绘制地图上站点相同的方式，利用经典的组合切分容器并添加原点即可。
+
+这里为了我们后续的操作，我把放点的容器暴露成全局变量。
+
+
+绘制曲线的方法也很简单，
+
+我们用d3.svg.line的方法来绘制曲线的path，之后添加一个path标签来设置d属性为生成的path即可。
+注意这里x，y方法都接受的是坐标，因此我们之前定义的 数据转位置的两个scale就有用了。
+
+设置x轴为刚才定义的stop_scale，传入数据的position属性所计算出的值
+设置y轴为刚才定义的incomeScale，传入数据的income2011属性所计算出的值
+
+
+
+之后interpolate（讲解一下）
+
+
+(但是要注意，用以上api制作出来的图形是面积图，我们需要用css去掉填充，要讲解一下) 
+
+
+
+after Establish container, we began to draw curves and the points on the curve. Because the points on the curve is the station, so we can build a container to place them, then use global variable souceData directly, with the same way we draw points on map, just draw by the combination of the classical  select data enter，then divide container and add the point.
+
+Here for our subsequent operations, we exposed the points container as global variables.
+
+Draw the curve method was simple,
+
+We use d3. SVG. Line method to draw the path curve, then add a path tag， set d properties for the generated path.
+Note the x, y method  accept coordinates, so we can use the scale  we previously defined can turn data to position.
+Set the x axis to stop_scale we just defined ,then incoming data calculated by the data's position attribute values
+Set the y axis to incomeScale we just defined,then  incoming data calculated by the data's income2011 attribute values
+here interpolate. If interpolate is specified, sets the interpolation mode to the specified string.
+there are many types of interpolation mode,here we use cardinal(卡的闹) to specified the line shape
+
+
+slide15
+
+
+曲线path定义完毕后，我们需要把曲线绘制到图表中。
+
+
+注意我们图表的背景，按照地区把图表切分成好几个部分，这里是一个难点我们最后会讲解，现在先给这个东西建立一个容器
+
+
+之后我们给纵轴axis添加一个标签，并应用之前定义好的axis，这里call方法的含义是这样的，我们去执行incomeAxis，之后把刚才创建的容器作为参数传进去，就可以显示了。
+
+
+之后我们再加一个label，这个label是倒着的，用transform就可以翻转过来，但是注意翻转过来是在原点，因此我们需要设置x与y属性来把这个label平移过来。text-anchor可以设置文字为居中。
+
+最后，我们为曲线建立一个容器g，然后设置id为line_path-2011 设置这个属性也是为了方便我们去操作。
+
+然后我们给容器添加一个path标签，现在先不设置d属性为之前定义好的曲线path。
+之后图表部分制作完成
+
+
+Curve path definition is end, we need to draw the curve in the chart.
+Note the chart background, divided into several parts according to the county, there is a difficulty, we will explain in the end , now first we set up a container for this.
+Then we add a label to the vertical axis, and use the axis we defined before. here the meaning of the call method is that we go to perform incomeAxis, then trans the newly created containers as a parameter.
+
+Then we add a label, the label is upside down, with the transform we can get over it, but note that over is at the origin, so we need to set the x and y attributes to get this label translate to suitable position. The text - anchor porperty can set text to center.
+
+Finally, we build a container for curve    "g", then set the id to line_path - 2011 in order to facilitate us to operate.
+And then we add a path to the container labels, now we  do not set d attribute to the curve path.
+ok the chart section is over
+
+
+
+slide16
+那么复杂的部分来了，如何能完成联动效果呢，我们需要点击某条线路后，
+在地图上，隐藏所有的站点，只显示这条线路跟线路上的站点
+
+在图表上
+显示这条线路的收入曲线，显示这个曲线上的站点。
+
+那么如何做到呢，我们需要使用id属性。
+
+当点击按钮的时候，获取id属性，在图表上通过id属性，显示相应id的曲线，显示相应id的站点
+
+同时在地图上，显示相应id的地铁线路，显示相应id的站点。
+那么如何做呢，下面我就详细来讲解。
+
+
+ok complex section is coming, how we can complete linkage effect, 
+we need to click on a line,
+On the map, hide all stations, displaying only the line and the stations on site
+On the diagram
+Display the line income curve, show the points on curve.
+So how to do, we need to use the id attribute.
+When click the button to get the id attribute, on the chart by the id attribute, we draw curve by corresponding id, display the corresponding id of the station
+On the map at the same time, show corresponding id subway lines.
+So I have to explain in detail below.
+
+
+
+slide17
+首先我们给每条线路建立一个按钮，设置按钮的class为l_  线路的id，比如说1号线就是l_1
+First of all, we create a button for each line, set button class to l underline plus id, for example line 1 is l_1
+
+
+
+slide18
+之后用css来美化这些按钮，大家还记得我们之前给地图上的线也设置了l_线路id了么，这时候就可以同时设置两个部分了。
+注意  设置按钮的背景色用background属性，而设置线路的颜色用stroke来设置。
+
+then we use CSS to beautify the button,have you remember the line on the map we set up id attribute l underline plus id, this time the style will apply on both.
+Pay attention to set background color we use background setting ,
+to set the color of the line we use stroke.
+
+
+
+slide19
+
+ok，我们现在开始操作数据。我们给每个按钮绑定单击的事件。当点击后，利用text()方法，取的当前按钮代表的线路id。
+
+之后，我们使用数组的filter方法，判断数据的每一项，当数据的line属性等于所获取的id时过滤出数据。
+
+然后我们定义一个函数 drawLine 。这个函数接受两个参数，一个参数是过滤过的数据，另一个参数是id。
+
+这个函数主要做三件事情，首先根据id号，绘制曲线图的特定id的曲线
+
+之后根据id号，显示地图上的特定线路
+
+之后根据过滤过的数据，显示地图跟曲线图上的原点。
+
+下面我们详细的来讲解这三个部分是如何完成的
+
+
+Ok, we are beginning to manipulate the data. we bind each button click event. After the click, use the text () method, get the current button line id.
+
+, we use array's filter method, judge each item of the data, when the data line attribute is equal to the id we obtained ,then filter out data.
+
+
+ then we define a function DrawLine . This function accepts two parameters, a parameter is filtered data, another parameter is the id.
+ 
+This function is mainly to do three things, 
+first of all, draw a curve according to the centain id number
+Then according to the id number, display the specific line on the map
+then According to the filtered data, show the points on map and on diagram.
+now we explain how the three parts is working
+
+
+
+
+
+slide20
+
+show circles部分，传入过滤过的数据后，首先我们隐藏所有出现的点。使用利用d3强大的变换功能 来动态的隐藏点
+
+之后我们用之前定义的全局变量的方式获取点的容器，然后利用data方法，重新给容器绑定数据。
+这样容器中就包含过滤过的数据所生成的点。
+
+之后我们仍然使用d3的变换功能显示这些点。
+
+要注意一点，之前我们在地图上
+为了定位某一个点，我们给每个点都用一个id来标记，这个id为t_地区_tract,这样我们就可以控制某个特定点了。
+
+为了让图表上的点跟地图上的点联动起来，我们也需要给图表上的点存储一些信息，之后我们就可以通过这些信息找到地图上相应的点了。
+
+这里我们使用class属性来存储。
+
+之后就是设置点的位置，跟之前是一样的，通过cx，cy设置即可。
+
+
+Show circles section, after income filtering data, first we hide all the points.
+ Use the d3 powerful transform functions to dynamically hide the points
+ 
+then we get the point container use global variable we previously defined , and then using the method of data, rebound data to the container.
+This container included  the point  generated by the filtered data.
+then we still use d3 transform function to display these points.
+to note, before we on the map to locate a certain point, 
+we give every point a marker with an id, this id is t underline county underline tract, so that we can control a particular point.
+
+In order to make the points on the graph link the points on the map, we also need to get the points on the graph store some information, then we can use this information to find the corresponding point on the map.
+Here we use the class attribute to store.
+then set point's position, with cx, cy attribute.
+
+
+
+
+
+
+slide 21
+draw chart line部分，我们需要使用id。
+
+很简单，只需要选择之前我们生成的那个path标签，然后设置好path的d属性即可。
+那么到底要设置什么呢，我们只需要把 过滤过的数据传入刚才定义好的曲线中，就可以得到path了。
+为了获得一个平滑的效果，我们也可以使用d3的变换功能。
+
+之后我们给这条曲线设置一个class属性 这个属性为l_加id，设置这个属性也是为了配合css设置样式。
+
+
+The draw chart line section, we need to use the id.
+It is very simple, only need to choose the path tag we generated before, and then set the path "d" attribute.
+So what we to set up, we only need to transfer the filtered data into the curve  we defined,then can get the path.
+In order to obtain a smooth effect, we can also use the d3 transition api.
+
+Then we set this curve a class attribute, the attribute is l_ plus id, set this property we can apply style with CSS.
+
+
+
+slide22
+
+draw subway部分，需要操作地图，这里也是需要使用line id
+很简单的两步操作，隐藏所有的line，之后根据id显示特定的地铁线路即可，因为我们之前已经给每条地铁线路添加了一个class为l_id了。
+
+隐藏我们可以使用设置opacity为0的方法。
+
+这里我们还需要给按钮增加一个点击效果，点击时，去除所有按钮的select 这个class，只给包含id的按钮添加select class名
+这里的classed方法类似addclass与removeclass的组合。
+
+这样我们就完成了drawLine 这个函数的功能。
+
+
+The draw subway section, need to manipulate maps, also a need the line id
+Very simple two step, 
+hide all line, then according to the line id, show the certain subway line, because we've already give each subway line a class for the l_id.
+
+then Hide the way we can set the opacity to 0.
+
+Here we also need to add a click event on botton, when click, remove all button's select class name , only add current button select class name
+Here classed api is the combination of addclass and removeclass
+ok we complete the function of drawLine.
+
+
+
+
+
+
+slide23
+
+我们还需要制作一个信息窗。首先我们定义好html，定义一个id为tooltip的容器方便我们操作。之后给内容预留出空间，添加一个类名为line的容器来存放线路名，再添加一个id名为income2011的容器来存放收入，再添加一个id为census的容器来存放tract
+再添加一个#stopname，下面添加#name这个容器来存放stopname
+
+We also need to make a tooltip. First of all, we write the HTML, define an id for the tooltip container to facilitate our operation. then we make some box to set space for content, add container which class called line  to hold the line, add container which id called income2011 to hold the income, add container which id called census to hold the tract,
+Add one more id is stopname, next id is name to hold the stopname
+
+slide24
+
+之后我们制作鼠标悬浮的交互效果。我们给曲线图上的每个点绑定mouseover跟mouseout事件。
+当mouseover时我们做以下的操作
+显示tooltip，tooltip的位置与鼠标当前的位置有关
+把当前悬浮的这个点增大
+填充内容框的内容
+在地图上显示相应的点。
+
+当mouseout时，隐藏tooltip，隐藏地图上的点，之后把点变小。
+
+
+then we make the mouse hover effect.each point on the graph we bind mouseover and mouseout event.
+When mouseover, we do the following operations
+
+display the tooltip, position associated with the current mouse position
+bigger the current point
+fill the content
+Display the corresponding point on the map.
+
+
+when mouseout we Hide the tooltip , hide the points on the map, then let them smaller.
+
+
+
+slide25
+
+我们来完成详细的交互操作。当mouseover时，我们利用this来引用当前的点，
+第一步用transition把点变大。
+
+之后选择tooltip，设置tooltip的位置为鼠标坐标。鼠标坐标可以从d3.event.pageX及pageY取到。
+之后我们制作一个fadein效果，配合transition设置opacity为1
+
+第二步，我们选择tooltip中，id为#name的容器，填充内容，内容为数据的stopname属性
+选择tooltip容器中，class为line的容器，填充内容，内容为当前的线路id，之后把line l_加id这个类名激活，这样我们就可以很方便的用css应用线路的样式了。这里我们也可以用classed这个api来操作
+
+第三步，我们选择tooltip中id为income2011的容器，填充内容，注意这里仍然要格式化income2011的数据。
+之后选择tooltip中id为census的容器，填充tractlookup属性
+
+第四步，我们选择地图上相应的点，用transition制作渐显效果。这里this。className。animVal可以取到className的值，也就是我们存储的t_地区_tract 这个id
+
+下面我们来制作mouseout效果
+
+now We complete the details of the interactions. When mouseover, we use “this“” to refer to the current point,
+The first step is to use transition  to bigger the point.
+Choose the tooltip, then set the position of the tooltip by the mouse coordinates. The mouse coordinates can get from d3. Event.  pageX and pageY.
+After we make a fadein effect, cooperate with the transition api we set the opacity to 1
+
+The second step, we choose a box in the tooltip , which id attribute is name ,then fill content, content is from data's stopname porperty
+
+then select a box in the tooltip , which class attribute is "line", fill content, the content is the current line id, then active the class line l underline id , so that we can use CSS to apply style conveniently. Here the "classed" API  we used before can also be used .
+The third step, select a box in the tooltip , which id attribute is "income2011", fill content, note that income2011 data still need to be formatted.
+then select a box in the tooltip , which id attribute is "census", fill the content by data's tractlookup properties
+
+The fourth step, we choose the corresponding point on the map, made a fadein effect with the transition. Here this.className. AnimVal can get the className value, that is the id t_ region _tract we stored before.
+
+Let's make a mouseout effect
+
+
+
+
+
+
+
+
+slide26
+
+mouseout时，首先利用transition渐隐tooltip。
+
+之后选择当前点并缩小
+
+之后选择所有地图上的点隐藏掉。
+曲线上点的mouseover与mouseout效果就制作完成了。
+
+
+when Mouseout, the first we use transition to fade the tooltip.
+then select the point and narrow it
+Then select all the points on the map and hide them.
+then points on curve mouseover and mouseout effect is completed.
+
+
+slide27 最后我们来完成最复杂的，地区划分。
+要把一个区域按照地区划分，毫无疑问需要使用经典的select data  enter组合，
+因此我们要制造这个数据来让api使用。
+我们看这张图。要把区域划分出来，只需要知道区域的名字，区域占据了几个点，以及区域从第几个站点开始即可
+
+
+finally we complete the most complex, county division.
+To divide an area according to the county, there is no doubt that you need to use the classic select data enter combination,
+So we need to make out the data for API to use.
+We look at this picture. 
+To divide the area , just need to know which point a county begin, how many points county occupies, as well as the name of the county
+
+
+
+
+slide28
+
+现在我们开始继续处理数据，我们的思路是这样的，首先遍历已经过滤过的数据，出现新的county时，push到数组中存储，然后记录下当前county是第几个点。当county不变时，我们就增加当前county占据的点的数量。
+
+Now continue to process the data, our idea is that the first traversal has filtered data, when meet a new county,push to stored array, then record the current point index. When county remains the same, we will increase the number of current county occupies the point.
+
+slide29
+
+代码实现如下。
+
+我们利用reduce方法，传入一个空数组来存储结果。reduce的回调函数接收三个参数：我们用来存储的数组memo，当前所遍历的元素stop，以及元素的index。
+第一个元素，由于memo的length为0，我们建立一个新的对象来存储第一个区域。这个对象的属性start代表当前的index，county代表区域的id，span代表占据的点，设置初始占据的点的数量为1
+之后继续遍历，当区域不变时，之前存储的区域占据的点+1
+当区域变化后，给memo push一个新的对象，
+这样我们就最终得到了一份点与区域分布的数据
+
+The code below.
+We use the reduce method, we define an empty array to store the results.the reduce callback function receive three parameters: the memo, we used to store ,the element we traversed, and the index of element.
+
+The first element, due to the length of memo is 0, we create a new object to store the first county. This object's properties "start" on behalf of the current index, the county property on behalf of the county's id, span representatives the points occupied,and we set the initial occupied number is 1
+continue to traverse, when the county remains the same, the span porperty plus 1
+when the county changed, memo push a new object,
+So that we finally got a data about point and county distribution 
+
+
+slide30
+
+之后很简单，我们选择之前建立的areabox容器，利用经典的select data enter组合切分区域，然后通过transform，根据每个区域的start属性来进行平移。比如说man区域从第五个点开始，那么我们就平移五个单位。这个单位可以通过开始的stop_scale计算出来
+
+next is very simple, we choose the areabox container we established before, using the classic select data enter combination to divide borough, and then through the transform api,  translate by each county's start attribute.Such as man county is from the fifth point, so we will shift five units. This unit can be calculated through the stop_scale we created before.
+
+
+
+slide31
+
+之后在切分好的区域里添加rect标签来存放背景，设置宽高。
+添加text标签来存放地区名，这个地区名通过对象的county属性来判断
+
+In the divided box we Add text tags to store county's name, the name is judged by the county attribute of the object
+then add the rect tag for background, and set width and height.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
