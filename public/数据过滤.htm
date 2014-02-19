@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://bl.ocks.org/mbostock/raw/3884955/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+
+rect.pane {
+  fill: none;
+  pointer-events:all
+}
+
+
+.tip{
+	fill: #A8D8DF;
+	stroke: #97B6A7;
+	stroke-width: 12px;
+	stroke-opacity: 0.5;
+}
+
+circle{
+opacity:0.6;
+}
+</style>
+<style id="clearly_highlighting_css" type="text/css">/* selection */ html.clearly_highlighting_enabled ::-moz-selection { background: rgba(246, 238, 150, 0.99); } html.clearly_highlighting_enabled ::selection { background: rgba(246, 238, 150, 0.99); } /* cursor */ html.clearly_highlighting_enabled {    /* cursor and hot-spot position -- requires a default cursor, after the URL one */    cursor: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--cursor.png") 14 16, text; } /* highlight tag */ em.clearly_highlight_element {    font-style: inherit !important; font-weight: inherit !important;    background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--yellow.png");    background-repeat: repeat-x; background-position: top left; background-size: 100% 100%; } /* the delete-buttons are positioned relative to this */ em.clearly_highlight_element.clearly_highlight_first { position: relative; } /* delete buttons */ em.clearly_highlight_element a.clearly_highlight_delete_element {    display: none; cursor: pointer;    padding: 0; margin: 0; line-height: 0;    position: absolute; width: 34px; height: 34px; left: -17px; top: -17px;    background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--delete-sprite.png"); background-repeat: no-repeat; background-position: 0px 0px; } em.clearly_highlight_element a.clearly_highlight_delete_element:hover { background-position: -34px 0px; } /* retina */ @media (min--moz-device-pixel-ratio: 2), (-webkit-min-device-pixel-ratio: 2), (min-device-pixel-ratio: 2) {    em.clearly_highlight_element { background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--yellow@2x.png"); }    em.clearly_highlight_element a.clearly_highlight_delete_element { background-image: url("chrome-extension://pioclpoplcdbaefihamjohnefbikjilc/clearly/images/highlight--delete-sprite@2x.png"); background-size: 68px 34px; } } </style><style type="text/css"></style><style>[touch-action="none"]{ -ms-touch-action: none; touch-action: none; }[touch-action="pan-x"]{ -ms-touch-action: pan-x; touch-action: pan-x; }[touch-action="pan-y"]{ -ms-touch-action: pan-y; touch-action: pan-y; }[touch-action="scroll"],[touch-action="pan-x pan-y"],[touch-action="pan-y pan-x"]{ -ms-touch-action: pan-x pan-y; touch-action: pan-x pan-y; }</style></head><body cz-shortcut-listen="true">
+<script src="./3884955_files/d3.v3.js"></script>
+<script>
+
+var margin = {
+	top : 20,
+	right : 80,
+	bottom : 30,
+	left : 50
+},
+width = 960 - margin.left - margin.right,
+height = 500 - margin.top - margin.bottom;
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+//加上domain方便给zoom传参数
+var x = d3.time.scale()
+	.range([0, width]).domain([new Date(2011, 10, 01), new Date(2012, 09, 30)]);
+
+var y = d3.scale.linear()
+	.range([height, 0]).domain([0,100]);
+
+var color = d3.scale.category10();
+
+var xAxis = d3.svg.axis()
+	.scale(x)
+	.orient("bottom");
+
+var yAxis = d3.svg.axis()
+	.scale(y)
+	.orient("left");
+
+var line = d3.svg.line()
+	.interpolate("linear")
+	.x(function (d) {
+		return x(d.date);
+	})
+	.y(function (d) {
+		return y(d.temperature);
+	});
+	
+	
+	var zoom = d3.behavior.zoom()
+    .y(y)
+	.x(x)  //对于时间的支持度有点问题。。
+    .scaleExtent([1, 100])
+    .on("zoom", zoomed);
+	
+var svg = d3.select("body").append("svg")
+	.attr("width", width + margin.left + margin.right)
+	.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")").call(zoom);
+
+	//遮罩层，缩放用
+	svg.append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+	
+	
+	
+		//缩放
+function zoomed() {
+//svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")"); 整个范围内的缩放
+draw(cities);
+}
+
+/*
+var loadTsv = function (file, callback) {
+
+	d3.tsv(file, function (err, callback) {
+
+		if (error)
+			throw error;
+		callback.call(this, data)
+	})
+
+}
+*/
+
+//参考坐标
+	var guidePositions = []
+
+function draw(cities) {
+		console.log(cities)
+
+		svg.selectAll('.city').remove();
+		svg.selectAll('.y').remove();
+		svg.selectAll('.x').remove();
+		
+			svg.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis);
+			
+		svg.append("g")
+		.attr("class", "y axis")
+		.call(yAxis)
+		.append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", ".71em")
+		.style("text-anchor", "end")
+		.text("Temperature (ºF)");
+//参考网格
+		svg.selectAll('.y line').attr('x2',width)
+		
+		var city = svg.selectAll(".city")
+			.data(cities)
+			.enter().append("g")
+			.attr("class", "city");
+			
+		city.append("path")
+		.attr("class", "line")
+		.attr("d", function (d) {
+			return line(d.values);
+		})
+		.style("stroke", function (d) {
+			return color(d.name);
+		}).attr("clip-path", "url(#clip)");//遮罩器
+		
+		guidePositions=[];//清空位置坐标数组
+		
+		/*参考点*/
+		guidePoints = city.selectAll('circle').data(function(d){
+		return d.values
+		}).enter().append('circle')
+		.attr("r",2)
+		.attr('cx',function(d){
+		return x(d.date)
+		}
+		)
+		.attr('cy',function(d){
+		return y(d.temperature)
+		}).attr('class',function(d){
+		var xPos = x(d.date)
+		guidePositions.push({x:xPos})
+		
+		return 'guidePoints'+xPos.toString().replace(/\./g,'-')
+		}).attr("clip-path", "url(#clip)");//遮罩器
+		
+
+		
+		city.append("text")
+		.datum(function (d) {
+			return {
+				name : d.name,
+				value : d.values[d.values.length - 1]
+			};
+		})
+		.attr("transform", function (d) {
+			return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")";
+		})
+		.attr("x", 3)
+		.attr("dy", ".35em")
+		.text(function (d) {
+			return d.name;
+		});
+	}
+
+d3.tsv("data.tsv", function (error, data) {
+	var keys = d3.keys(data[0]).filter(function (key) {
+			return key !== "date";
+		})
+		color.domain(keys);
+
+
+	data.forEach(function (d) {
+		d.date = parseDate(d.date);
+	});
+
+	var cities = color.domain().map(function (name) {
+			return {
+				name : name,
+				values : data.map(function (d) {
+					return {
+						date : d.date,
+						temperature : +d[name]
+					};
+				})
+			};
+		});
+	
+	window['cities'] = cities;
+	x.domain(d3.extent(data, function (d) {
+			return d.date;
+		}));
+
+	y.domain([
+			d3.min(cities, function (c) {
+				return d3.min(c.values, function (v) {
+					return v.temperature;
+				});
+			}),
+			d3.max(cities, function (c) {
+				return d3.max(c.values, function (v) {
+					return v.temperature;
+				});
+			})
+		]);
+	var position = {}
+	function changeCity(d) {
+	var found = false;
+	
+	cities = cities.filter(function(arr,index){
+	if(arr['name']===d){
+				position[d] =index;
+				position[d + 'Val'] =arr;
+				found = true
+				return false
+	};
+	return true 
+	})
+
+		if (!found) {
+			cities.splice(position[d], 0, position[d + 'Val'])
+		}
+		y.domain([
+				d3.min(cities, function (c) {
+					return d3.min(c.values, function (v) {
+						return v.temperature;
+					});
+				}),
+				d3.max(cities, function (c) {
+					return d3.max(c.values, function (v) {
+						return v.temperature;
+					});
+				})
+			]);
+
+		draw(cities)
+
+	}
+
+	
+	svg.selectAll('.x line').attr('y2',-height)
+	
+	
+	//这个东西很重要，他把svg"撑开"让其感应空间增大，
+	//不然在svg上的事件只会被path捕获到.注意在上面应用pointer-events
+	var mask  = svg.append("rect")
+    .attr("class", "pane")
+    .attr("width", width)
+    .attr("height", height);
+	
+
+	
+	
+	
+	//参考线
+	 var horizonLine = svg.append('line')
+            .attr('class', 'hover-line')
+            .attr('x1', 0).attr('x2', 0)
+            .attr('y1', 2)// prevent touching x-axis line
+            .attr('y2', height)
+            .attr('stroke-width', 1)
+            .attr('stroke', 'grey')
+            .attr('opacity', 1);
+
+				//参考线
+	 var verticalLine = svg.append('line')
+            .attr('class', 'hover-line')
+            .attr('x1', 0).attr('x2', width)
+            .attr('y1', 2)// prevent touching x-axis line
+            .attr('y2', 2)
+            .attr('transform', 'translate(0, -20)')
+            .attr('stroke-width', 1)
+            .attr('stroke', 'grey')
+            .attr('opacity', 1);
+			
+			/*
+	//tip
+	var tip = svg.append("foreignObject")
+    .attr("x", 20)
+    .attr("y",30)
+	.attr('width',300)
+	.attr('height',200)
+	.attr('opacity', 0);
+	
+	var tipBox = tip.append("xhtml:body")
+    .html("<h1>n.</h1>");
+	*/
+		//寻找最近的点
+	var bisect = d3.bisector(function(d) { return d.x; }).right;
+	
+	//tip
+	var infoBox = svg.append("g").attr('width', 100);
+
+	var tip = infoBox.append('rect').attr('class', 'tip').attr('width', 170).attr('height', 240).attr('opacity', 0)
+	var tipInfo =infoBox.append("text")
+						.attr("dy", ".35em")
+						
+	function setTipPosition(x,y){
+	tip.attr("x",x).attr("y",y)
+	tipInfo.attr("x",x).attr("y",y);
+	}
+	function showTip(){
+	tip.style("opacity",1)
+	}
+	
+		function hideTip(){
+	tip.style("opacity",0)
+	}
+	
+	function showGuides(){
+	                verticalLine.style('opacity', 1);                
+                    horizonLine.style('opacity', 1);        
+	
+	}
+	
+	function hideGuides(){
+	                    verticalLine.style('opacity', 1);                
+                    horizonLine.style('opacity', 1);        
+	
+	}
+	function setGuidesPosition(x,y){
+                horizonLine.attr('x1', x).attr('x2', x);
+                verticalLine.attr('y1', y+20).attr('y2', y+20);
+	}
+	var guidePoints,prevPoints,nextPoints;//参考点
+	
+	function highlightPoints(index){
+	var position = guidePositions[index];
+	var posString =position?position.x.toString().replace(/\./g,'-'):undefined;
+	prevPoints = nextPoints;
+	nextPoints = posString ||nextPoints;
+	svg.selectAll('.guidePoints'+nextPoints).attr('r',5)
+	svg.selectAll('.guidePoints'+prevPoints).attr('r',2)
+	}
+	
+           svg.on('mouseover', function () {
+				showTip();
+                
+				var mouse = d3.mouse(this);
+
+                var mX = mouse[0] , mY = mouse[1];
+				
+
+			   if (mX >0  && mY >0 && mX < width){			   
+     
+					showGuides()
+					}   
+                else{
+                  hideGuides()
+					}
+            })
+            .on('mouseout', function () {
+			hideTip()
+			hideGuides()
+            })
+            .on('mousemove', function () {
+
+                var mouse = d3.mouse(this);
+                var mX = mouse[0], mY = mouse[1];
+				
+				var index = bisect(guidePositions,mX);
+				
+				highlightPoints(index) 
+				
+				
+				setTipPosition(mX,mY);
+				setGuidesPosition(mX,mY)
+            });
+
+	
+	draw(cities);
+	/*legend层级在最上面*/
+		var legend = svg.append('g').attr('class','legend-box').selectAll(".legend")
+		.data(keys)
+		.enter().append("g")
+		.attr("class", "legend")
+		.attr("transform", function (d, i) {
+			return "translate(0," + i * 20 + ")";
+		});
+
+	legend.append("rect")
+	.attr("x", width - 18)
+	.attr("width", 18)
+	.attr("height", 18)
+	.style("fill", color);
+
+	legend.append("text")
+	.attr("x", width - 24)
+	.attr("y", 9)
+	.attr("dy", ".35em")
+	.style("text-anchor", "end")
+	.text(function (d) {
+		return d;
+	})
+	.on('click', function (d) {
+		changeCity(d);
+	});
+	
+	
+
+});
+
+
+
+</script>
